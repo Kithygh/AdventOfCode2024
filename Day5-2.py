@@ -4,31 +4,31 @@ from pathlib import Path
 from icecream import ic
 
 input = Path("day5input.txt")
-input = Path("day5inputTEST.txt")
+# input = Path("day5inputTEST.txt")
 
 def test_rules(rules):
     for rule in rules:
         assert len(rule) == 2
-def test_updates(updates):
-    for update in updates:
+def test_editions(editions):
+    for update in editions:
         assert len(update) % 2 == 1
 
 def get_lines():
     with input.open() as f:
         return f.readlines()
 
-def gather_rules_and_updates():
+def gather_rules_and_editions():
     rules = []
-    updates = []
+    editions = []
     for line in get_lines():
         if line == '\n':
             continue
         if '|' in line:
             rules.append(line.strip().split(sep='|'))
         else:
-            updates.append(line.strip().split(sep=','))
+            editions.append(line.strip().split(sep=','))
 
-    return rules, updates
+    return rules, editions
 
 def verify_update(update: list, rules):
     for rule in rules:
@@ -41,15 +41,15 @@ def verify_update(update: list, rules):
             continue
     return True
 
-def get_rejected_updates(updates, rules):
-    rejected_updates = []
-    for update in updates:
+def get_rejected_editions(editions, rules):
+    rejected_editions = []
+    for update in editions:
         if not verify_update(update, rules):
-            rejected_updates.append(update)
-    return rejected_updates
+            rejected_editions.append(update)
+    return rejected_editions
 
 def repair_update(update: list, rules):
-    
+
     for rule in rules:
         try:
             a = update.index(rule[0])
@@ -68,64 +68,70 @@ def repair_update(update: list, rules):
 def assemble_master_rule(rules):
     master = []
     def recursion(rules):
-        if len(rules) == 1:
-            ic(master)
-            master.append(rules[0][0])
-            master.append(rules[0][1])
+        print("------------")
+        ic(rules)
+        ic(len(rules))
+        if len(rules) == 1: # base case
+            master.extend(rules[0])
             return master
-        
         # find what left number isn't on right
-        rights = []
-        for rule in rules:
-            rights.append(rule[1])
-        next_to_add = 0
-        for rule in rules:
-            if rule[0] not in rights:
-                next_to_add = rule[0]
-                break
-        # ic(rights)
+        next_to_add = {r[0] for r in rules if r[0] not in {r[1] for r in rules}}
         ic(next_to_add)
+        # next_to_add = [r[0] for r in rules if r[0] not in [r[1] for r in rules]][0]
         # add that number to master
-        master.append(next_to_add)
-
+        num_to_add = next_to_add.pop()
+        master.append(num_to_add)
         # remove rules that start with that number
-        rules = [r for r in rules if r[0] != next_to_add]
-
+        rules = [r for r in rules if r[0] != num_to_add]
         # call recursion
         return recursion(rules)
     return recursion(rules)
 
-
+def narrow_down_rules(edition, rules):
+    ed_rules = [r for r in rules if r[0] in edition and r[1] in edition]
+    return ed_rules
+    
 
 def main():
-    rules, updates = gather_rules_and_updates()
+    rules, editions = gather_rules_and_editions()
     test_rules(rules)
-    test_updates(updates)
+    test_editions(editions)
     total = 0
-    master_rule = assemble_master_rule(rules)
-    ic(master_rule)
-    # rejected_updates = get_rejected_updates(updates, rules)
     
-    # fixed_updates = []
-    # for u in rejected_updates:
-    #     fixed = []
-    #     for x in master_rule:
-    #         if x in u:
-    #             fixed.append(x)
-    #     fixed_updates.append(fixed)
-    # ic(fixed_updates)
+
     
     
-    # for u in rejected_updates:
+    # master_rule = assemble_master_rule(rules)
+    # ic(master_rule)
+    rejected_editions = get_rejected_editions(editions, rules)
+
+    fixed_editions = []
+    for e in rejected_editions:
+        fixed = []
+        narrowed_rules = narrow_down_rules(e, rules)
+        ic(len(narrowed_rules))
+        # exit()
+        master_rule = assemble_master_rule(narrowed_rules)
+        ic(master_rule)
+        for x in master_rule:
+            if x in e:
+                fixed.append(x)
+        fixed_editions.append(fixed)
+    ic(fixed_editions)
+
+    for update in fixed_editions:
+        if verify_update(update, rules):
+            total += int(update[int((len(update)-1)/2)])
+    # for u in rejected_editions:
     #     ic(u, "before")
     #     repair_update(u, rules)
     #     if not verify_update(u, rules):
     #         ic(u, "after")
-    # for update in rejected_updates:
+    # for update in rejected_editions:
     #     total += int(update[int((len(update)-1)/2)])
-    
-    
-    
+
+
+
     ic(total)
 
 if __name__ == "__main__":
