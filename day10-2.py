@@ -42,13 +42,12 @@ def find_trailends(coord: tuple[int, int], grid: np.ndarray) -> np.ndarray:
         if target == 10:
             return coords
 
-        # neighbors = [find_neighbors(coord, grid) for coord in coords]
         neighbors = []
         for coord in coords:
             neighbors.extend(find_neighbors(coord, grid))
-        blah = {(neighbor[0],neighbor[1])
+        blah = [(neighbor[0],neighbor[1])
                 for neighbor in neighbors
-                if grid[neighbor[0],neighbor[1]] == target}
+                if grid[neighbor[0],neighbor[1]] == target]
         return recursion(list(blah))
     return recursion([coord,])
 
