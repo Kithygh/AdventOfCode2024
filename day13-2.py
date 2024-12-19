@@ -49,7 +49,6 @@ def parse_claw_machines():
             buttonb = Button(int(n[2][2:-1]), int(n[3][2:]))
         if n[0] == 'Prize:':
             goal = Goal(int(n[1][2:-1]) + 10000000000000, int(n[2][2:]) + 10000000000000)
-            # goal = Goal(int(n[1][2:-1]), int(n[2][2:]))
             machines.append(ClawMachine(buttona, buttonb, goal))
 
 def test_machine(claw: ClawMachine):
