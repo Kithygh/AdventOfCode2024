@@ -48,22 +48,31 @@ def parse_claw_machines():
         if n[1] == 'B:':
             buttonb = Button(int(n[2][2:-1]), int(n[3][2:]))
         if n[0] == 'Prize:':
-            goal = Goal(int(n[1][2:-1]), int(n[2][2:]))
+            goal = Goal(int(n[1][2:-1]) + 10000000000000, int(n[2][2:]) + 10000000000000)
+            # goal = Goal(int(n[1][2:-1]), int(n[2][2:]))
             machines.append(ClawMachine(buttona, buttonb, goal))
 
 def test_machine(claw: ClawMachine):
-    while claw.b_presses * claw.b.x < claw.goal.x:
-        claw.b_presses += 1
-        x = claw.b_presses * claw.b.x
-        y = claw.b_presses * claw.b.y
-        # test if x is even reachable by a presses
-        if (claw.goal.x - x) % claw.a.x == 0:
-            multa_x = int((claw.goal.x - x) / claw.a.x)
-            if (claw.goal.y - y) == claw.a.y * multa_x:
-                claw.a_presses = multa_x
-                return
+    # ga + hb = c
+    # ia + jb = d
+    # a = ((c*j) - (d*h)) / ((g*j) - (h*i))
+    g = claw.a.x
+    h = claw.b.x
+    c = claw.goal.x
+    i = claw.a.y
+    j = claw.b.y
+    d = claw.goal.y
+    a = ((c*j) - (d*h)) / ((g*j) - (h*i))
+    if a.is_integer():
+        b = (d - i * a) / j
+        if b.is_integer():
+            claw.a_presses = int(a)
+            claw.b_presses = int(b)
+            return
+
     claw.b_presses = None
     claw.a_presses = None
+
 
 def main():
     parse_claw_machines()
