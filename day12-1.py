@@ -4,7 +4,6 @@ from icecream import ic
 from pathlib import Path
 import numpy as np
 from collections import namedtuple
-from itertools import product
 from dataclasses import dataclass
 from queue import Queue
 
@@ -83,11 +82,8 @@ def find_region(coord: Point) -> None:
 
 def measure_perimeter(region: Region) -> None:
     for plot in region.members:
-        # ic(plot)
         neighbors = find_neighbors(plot)
-        # ic(neighbors)
         neighbors = [n for n in neighbors if grid[n] == region.label]
-        # ic(neighbors)
         region.perimeter += 4 - len(neighbors)
 
 def main():
